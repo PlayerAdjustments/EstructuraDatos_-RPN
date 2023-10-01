@@ -83,7 +83,7 @@ namespace EstructuraDatos__RPN
         /// </summary>
         /// <param name="notacion"></param>
         /// <returns>string con llaves y corchetes reemplazadas</returns>
-        public string adaptString (string notacion)
+        private string adaptString (string notacion)
         {
             string result = "";
             foreach (char c in notacion)
@@ -107,7 +107,7 @@ namespace EstructuraDatos__RPN
         /// </summary>
         /// <param name="notacion"></param>
         /// <returns>string convertido usando ! para señalar la cantidad del primer digito del negativo</returns>
-        public string detectNegatives(string notacion)
+        private string detectNegatives(string notacion)
         {
             //Checks for cases like where the negative is at the start of the string: "-1*2" => "!*2"
             string[] patterns = { @"(^\-[0])", @"(^\-[1])", @"(^\-[2])", @"(^\-[3])", @"(^\-[4])", @"(^\-[5])", @"(^\-[6])", @"(^\-[7])", @"(^\-[8])", @"(^\-[9])" };
@@ -141,6 +141,7 @@ namespace EstructuraDatos__RPN
                 notacion = result;
             }
 
+            WriteLine(result);
             return result;
         }
 
@@ -149,7 +150,7 @@ namespace EstructuraDatos__RPN
         /// </summary>
         /// <param name="notacion"></param>
         /// <returns>Lista de elementos que conforman la notacion dada.</returns>
-        public List<string> stringToList(string notacion)
+        private List<string> stringToList(string notacion)
         {
             /*Using regular expresions. 
                 Gets a patterns and searches in a text.
@@ -216,7 +217,7 @@ namespace EstructuraDatos__RPN
         /// </summary>
         /// <param name="notacion"></param>
         /// <returns>string modificado con los * agregados donde corresponden.</returns>
-        public string parenthesisMultiplication(string notacion)
+        private string parenthesisMultiplication(string notacion)
         {
             string[] patterns = { @"(\)\()", @"(\d)\(", @"\)(\d)" };
             string[] replacements = { ")*(", "$1*(", ")*$1" };
