@@ -21,6 +21,12 @@ namespace EstructuraDatos__RPN
         {
             {"^",3},{"*",2},{"/",2},{"+",1},{"-",1}
         };
+
+        //In case of having negatives like -5-5, we could take the first -5 as a whole number since no operator is following it
+        private Dictionary<string, string> negativeSymbols = new Dictionary<string, string>()
+        {
+            {"!","-1"}, {"!!","-2"}, {"!!!" , "-3"}, {"!!!!" , "-4"}, {"!!!!!" , "-5"}, {"!!!!!!" , "-6"}, {"!!!!!!!" , "-7"}, {"!!!!!!!!" , "-8"}, {"!!!!!!!!!" , "-9"}, {"~!" , "-0"},
+        };
         
         /// <summary>
         /// Revisa si los parentesis estan balanceados.
@@ -77,7 +83,7 @@ namespace EstructuraDatos__RPN
         /// </summary>
         /// <param name="notacion"></param>
         /// <returns>string con llaves y corchetes reemplazadas</returns>
-        private string adaptString (string notacion)
+        public string adaptString (string notacion)
         {
             string result = "";
             foreach (char c in notacion)
@@ -91,6 +97,51 @@ namespace EstructuraDatos__RPN
 
             //WriteLine(result);
             return parenthesisMultiplication(result);
+        }
+
+        /// <summary>
+        /// Revisa por casos donde se puedan usar negativos siendo 3 casos:
+        /// 1. Incio del string => "-1+2"
+        /// 2. Despues de un parentesis abierto => "(-1*2)"
+        /// 3. En caso de que sea un numero mayor a 1 digito "-90"
+        /// </summary>
+        /// <param name="notacion"></param>
+        /// <returns>string convertido usando ! para señalar la cantidad del primer digito del negativo</returns>
+        public string detectNegatives(string notacion)
+        {
+            //Checks for cases like where the negative is at the start of the string: "-1*2" => "!*2"
+            string[] patterns = { @"(^\-[0])", @"(^\-[1])", @"(^\-[2])", @"(^\-[3])", @"(^\-[4])", @"(^\-[5])", @"(^\-[6])", @"(^\-[7])", @"(^\-[8])", @"(^\-[9])" };
+            string result = "";
+            string[] replacements = { "~!", "!", "!!", "!!!", "!!!!", "!!!!!", "!!!!!!", "!!!!!!!", "!!!!!!!!", "!!!!!!!!!" };
+
+            for (int i = 0; i < patterns.Length; i++)
+            {
+                result = Regex.Replace(notacion, patterns[i], replacements[i]);
+                notacion = result;
+                //WriteLine(result);
+            }
+
+            //Checks for cases like where the negative is at the start of a parenthesis: "(-1*2)" => "(!*2)"
+            string[] nextPatterns = { @"\(\-0", @"\(\-1", @"\(\-2", @"\(\-3", @"\(\-4", @"\(\-5", @"\(\-6", @"\(\-7", @"\(\-8", @"\(\-9" };
+            string[] nextReplacements = { "(~!", "(!", "(!!", "(!!!", "(!!!!", "(!!!!!", "(!!!!!!", "(!!!!!!", "(!!!!!!!!", "(!!!!!!!!!" };
+
+            for (int i = 0; i < nextPatterns.Length; i++)
+            {
+                result = Regex.Replace(notacion, nextPatterns[i], nextReplacements[i]);
+                notacion = result;
+            }
+
+            //Checks for cases where the negative have another operator like: "5(2/-3)" => "5(2/!!!)"
+            string[] lastPatterns = { @"([*\^\/]|(?<!E)[\+\-])\-0", @"([*\^\/]|(?<!E)[\+\-])\-1", @"([*\^\/]|(?<!E)[\+\-])\-2", @"([*\^\/]|(?<!E)[\+\-])\-3", @"([*\^\/]|(?<!E)[\+\-])\-4", @"([*\^\/]|(?<!E)[\+\-])\-5", @"([*\^\/]|(?<!E)[\+\-])\-6", @"([*\^\/]|(?<!E)[\+\-])\-7", @"([*\^\/]|(?<!E)[\+\-])\-8", @"([*\^\/]|(?<!E)[\+\-])\-9" };
+            string[] lastReplacements = { "$1~!", "$1!", "$1!!", "$1!!!", "$1!!!!", "$1!!!!!", "$1!!!!!!", "$1!!!!!!", "$1!!!!!!!!", "$1!!!!!!!!!" };
+
+            for (int i = 0; i < lastPatterns.Length; i++)
+            {
+                result = Regex.Replace(notacion, lastPatterns[i], lastReplacements[i]);
+                notacion = result;
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -110,13 +161,48 @@ namespace EstructuraDatos__RPN
 
             string[] substrings = Regex.Split(notacion, pattern);
 
+            string correspondentValue = "";
+
             List<string> notation = new List<string>();
 
             foreach (string substring in substrings)
             {
                 if (!(string.IsNullOrEmpty(substring) || string.IsNullOrWhiteSpace(substring)))
                 {
-                    notation.Add(substring);
+                    //Check if the substring is a negative of more than one digit ex. -90
+                    if (Regex.IsMatch(substring, @"\!\d"))
+                    {
+                        char[] chars = substring.ToCharArray();
+                        string symboledNumber = ""; string realNumber = ""; string holder = "";
+                        foreach (char c in chars)
+                        {
+                            if (c == '!' || c == '~')
+                            {
+                                symboledNumber += c;
+                            }
+                            else
+                            {
+                                holder += c;
+                            }
+                        }
+
+                        if (negativeSymbols.TryGetValue(symboledNumber, out correspondentValue))
+                        {
+                            realNumber = correspondentValue + holder;
+                        }
+
+                        notation.Add(realNumber);
+                    } 
+                    //Then it could be a number or operator
+                    else if (!negativeSymbols.TryGetValue(substring.Trim(), out correspondentValue))
+                    {
+                        notation.Add(substring);
+                    }
+                    //It can just be a single digit negative ex. -1
+                    else
+                    {
+                        notation.Add(correspondentValue);
+                    }
                 }
             }
 
@@ -140,10 +226,10 @@ namespace EstructuraDatos__RPN
             {
                 result = Regex.Replace(notacion, patterns[i], replacements[i]);
                 notacion = result;
-                WriteLine(result);
+                //WriteLine(result);
             }
 
-            return result;
+            return detectNegatives(result);
         }
 
         /// <summary>
@@ -485,7 +571,6 @@ namespace EstructuraDatos__RPN
 
             return notacion[0];
         }
-
 
         /// <summary>
         /// Dada un string con los elementos separados por espacios, resuelve la operacion en el string.
