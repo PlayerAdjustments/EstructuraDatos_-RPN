@@ -44,15 +44,18 @@ namespace EstructuraDatos__RPN
 
             string notacion = "(-5)-5";
             WriteLine($"\n Operacion pasada: {notacion}");
-            WriteLine(rpn.adaptString(notacion));
             WriteLine(rpn.InfixCalculator(notacion));
 
             notacion = "-6(4)+7+-90";
             WriteLine($"\n Operacion pasada: {notacion}");
-            WriteLine(rpn.adaptString(notacion));
             WriteLine(rpn.InfixCalculator(notacion));
 
             WriteLine(rpn.EvaluateRPN("-6 4 * 7 + -90 +"));
+
+            notacion = "-0100(-2)";
+            WriteLine($"\n Operacion pasada: {notacion}");
+            WriteLine(rpn.InfixCalculator(notacion));
+
 
             BackgroundColor = ConsoleColor.DarkGreen;
             
