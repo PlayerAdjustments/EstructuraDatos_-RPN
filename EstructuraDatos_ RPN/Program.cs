@@ -33,7 +33,8 @@ namespace EstructuraDatos__RPN
 
             Clear();
 
-            BackgroundColor = ConsoleColor.DarkCyan;
+
+            BackgroundColor = ConsoleColor.DarkBlue;
             WriteLine($"************* Pruebas *************");
             WriteLine(rpn.InfixCalculator("1*2+2+3*5") + "\n");
             WriteLine(rpn.EvaluateRPN("1 2 * 2 + 3 5 * +") + "\n");
@@ -41,7 +42,18 @@ namespace EstructuraDatos__RPN
             WriteLine(rpn.ConvertToRPN(notacionLista) + "\n");
             WriteLine(rpn.InfixCalculator(notacionLista) + "\n");
 
-            WriteLine(rpn.InfixCalculator("(-5) -5"));
+            string notacion = "(-5)-5";
+            WriteLine($"\n Operacion pasada: {notacion}");
+            WriteLine(rpn.adaptString(notacion));
+            WriteLine(rpn.InfixCalculator(notacion));
+
+            notacion = "-6(4)+7+-90";
+            WriteLine($"\n Operacion pasada: {notacion}");
+            WriteLine(rpn.adaptString(notacion));
+            WriteLine(rpn.InfixCalculator(notacion));
+
+            WriteLine(rpn.EvaluateRPN("-6 4 * 7 + -90 +"));
+
             BackgroundColor = ConsoleColor.DarkGreen;
             
             WriteLine($"************* Balanceador *************");
